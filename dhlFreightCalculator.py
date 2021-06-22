@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 """A freight calculator that uses a Tkinter GUI and pulls rates from a DHL rate .xlsx file"""
+import os
+import sys
 import openpyxl
 import tkinter as tk
 import warnings
@@ -178,11 +180,21 @@ class Application(tk.Frame):
 
         # TODO: Create label with program & copyright info
 
+    def resourcePath(self, relativePath):
+        """ Get absolute path to resource, works for dev and for PyInstaller """
+        try:
+            # PyInstaller creates a temp folder and stores path in _MEIPASS
+            basePath = sys._MEIPASS
+        except Exception:
+            basePath = os.path.abspath(".")
+
+        return os.path.join(basePath, relativePath)
+
     def initialize_rates(self):
         """Initialize freight rates from DHL excel workbook"""
         with warnings.catch_warnings():  # .wmf image in the excel file causes a warning
             warnings.simplefilter('ignore')
-            self.wb = openpyxl.load_workbook('dhlRates.XLSX', data_only = True)
+            self.wb = openpyxl.load_workbook(self.resourcePath('./dhlRates.xlsx'), data_only = True)
             self.ratesWS = self.wb['US Import Rates']  # import rates
 
     def change_country_dropdown(self, *args):
